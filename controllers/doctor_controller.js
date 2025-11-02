@@ -1,6 +1,9 @@
 const User = require("../models/user_model");
 const Clinic = require("../models/clinic_model");
+const Appointment = require("../models/appointment_model");
+const CONSTANTS = require("../utils/constants");
 
+// ✅ Complete Doctor Profile
 exports.completeDoctorProfile = async (req, res) => {
     try {
         const {
@@ -19,7 +22,17 @@ exports.completeDoctorProfile = async (req, res) => {
             return res.status(400).json({ message: "All required fields must be filled." });
         }
 
-        // Find and update user
+        // Find existing user
+        const existingUser = await User.findById(userId);
+        if (!existingUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // ✅ Only update profileCompleted if less than 50 or not set
+        let profileCompleted = existingUser.profileCompleted ?? 0;
+        if (profileCompleted < 50) profileCompleted = 50;
+
+        // Update user
         const updatedUser = await User.findByIdAndUpdate(
             userId,
             {
@@ -30,14 +43,10 @@ exports.completeDoctorProfile = async (req, res) => {
                 age,
                 gender,
                 bio,
-                profileCompleted: 50,
+                profileCompleted,
             },
             { new: true }
         );
-
-        if (!updatedUser) {
-            return res.status(404).json({ message: "User not found" });
-        }
 
         return res.status(200).json({
             message: "Doctor profile updated successfully",
@@ -157,5 +166,96 @@ exports.saveClinic = async (req, res) => {
     } catch (err) {
         console.error('Error saving clinic:', err);
         res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+
+// ✅ GET Doctor Appointments
+exports.getDoctorAppointments = async (req, res) => {
+    try {
+        const { doctorId } = req.body;
+
+        if (!doctorId) {
+            return res
+                .status(400)
+                .json({ success: false, message: "Doctor ID is required" });
+        }
+
+        const appointments = await Appointment.find({ doctorId: doctorId.toString() })
+            .populate("patientId", "name email phone")
+            .populate("clinicId", "clinicName clinicCity")
+            .sort({ appointmentDate: -1 });
+
+        if (!appointments.length) {
+            return res.status(200).json({ success: true, appointments: [] });
+        }
+
+        const formatted = appointments.map((appt) => ({
+            id: appt._id,
+            patient: appt.patientId ? appt.patientId.name : "Unknown",
+            patientPhone: appt.patientId ? appt.patientId.phone : "N/A",
+            date: appt.appointmentDate,
+            time: appt.appointmentTime,
+            clinic: appt.clinicId
+                ? `${appt.clinicId.clinicName}, ${appt.clinicId.clinicCity}`
+                : "N/A",
+            notes: appt.notes || "",
+            status: appt.status || CONSTANTS.APPOINTMENT_STATUS.PENDING,
+        }));
+
+        return res.status(200).json({
+            success: true,
+            appointments: formatted,
+        });
+    } catch (error) {
+        console.error("Error fetching doctor appointments:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Error fetching appointments",
+            error: error.message,
+        });
+    }
+};
+
+// ✅ Accept Appointment
+exports.acceptAppointment = async (req, res) => {
+    try {
+        const { appointmentId, doctorId } = req.body;
+
+        if (!appointmentId || !doctorId) {
+            return res
+                .status(400)
+                .json({ success: false, message: "Missing required fields" });
+        }
+
+        const appointment = await Appointment.findOne({ _id: appointmentId, doctorId });
+
+        if (!appointment) {
+            return res
+                .status(404)
+                .json({ success: false, message: "Appointment not found" });
+        }
+
+        if (appointment.status === CONSTANTS.APPOINTMENT_STATUS.APPROVED) {
+            return res
+                .status(400)
+                .json({ success: false, message: "Appointment already accepted" });
+        }
+
+        appointment.status = CONSTANTS.APPOINTMENT_STATUS.APPROVED;
+        await appointment.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Appointment accepted successfully",
+            appointment,
+        });
+    } catch (error) {
+        console.error("Error accepting appointment:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Error accepting appointment",
+            error: error.message,
+        });
     }
 };

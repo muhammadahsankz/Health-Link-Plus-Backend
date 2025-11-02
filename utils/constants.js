@@ -13,7 +13,16 @@ const APPROVAL_STATUS = {
     APPROVED: "Approved",
 };
 
+// ✅ Appointment Status
+const APPOINTMENT_STATUS = {
+    PENDING: "Pending",
+    APPROVED: "Accepted",
+    REJECTED: "Rejected",
+    COMPLETED: "Completed",
+};
+
 module.exports = {
     ROLES,
     APPROVAL_STATUS,
+    APPOINTMENT_STATUS,
 };
