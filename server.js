@@ -5,6 +5,7 @@ const connectDB = require('./config/mongo_db');
 const createDefaultAdmin = require('./utils/create_default_admin');
 const cors = require('cors');
 
+
 const app = express();
 
 // Allow Cors
@@ -24,6 +25,8 @@ app.use('/api/users', require('./routes/user_routes'));
 app.use('/api/otp', require('./routes/otp_routes'));
 app.use('/api/doctor', require('./routes/doctor_routes'));
 app.use('/api/patient', require('./routes/patient_routes'));
+app.use('/api/zoom', require('./routes/zoom_routes'));
+
 app.get('/', (req, res) => {
     res.send('Hello from Health Link + Backend!');
 });

@@ -169,3 +169,51 @@ exports.getPatientAppointments = async (req, res) => {
     }
 };
 
+
+
+// ✅ GET meeting details for an appointment
+exports.getMeetingDetails = async (req, res) => {
+    try {
+        const { appointmentId } = req.body;
+
+        if (!appointmentId) {
+            return res.status(400).json({
+                success: false,
+                message: "Appointment ID is required",
+            });
+        }
+
+        const appointment = await Appointment.findById(appointmentId)
+            .select("zoomMeetingId zoomJoinUrl status doctorId patientId");
+
+        if (!appointment) {
+            return res.status(404).json({
+                success: false,
+                message: "Appointment not found",
+            });
+        }
+
+        if (!appointment.zoomMeetingId) {
+            return res.status(404).json({
+                success: false,
+                message: "No meeting created for this appointment yet",
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            meeting: {
+                meetingId: appointment.zoomMeetingId,
+                joinUrl: appointment.zoomJoinUrl,
+                status: appointment.status,
+            },
+        });
+    } catch (error) {
+        console.error("Error fetching meeting details:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Error fetching meeting details",
+            error: error.message,
+        });
+    }
+};

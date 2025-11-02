@@ -31,6 +31,18 @@ const appointmentSchema = new mongoose.Schema({
     },
     notes: {
         type: String,
+    },  // ✅ ADD ZOOM MEETING FIELDS
+    zoomMeetingId: {
+        type: String,
+        default: '',
+    },
+    zoomJoinUrl: {
+        type: String,
+        default: '',
+    },
+    zoomStartUrl: {
+        type: String,
+        default: '',
     },
     createdAt: {
         type: Date,
