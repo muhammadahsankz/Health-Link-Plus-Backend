@@ -78,15 +78,15 @@ const createMeeting = async (req, res) => {
                 timezone: 'UTC',
                 settings: {
                     join_before_host: true,
-                    approval_type: 0,
-                    registration_type: 1,
+                    approval_type: 0, // 0 = Automatically approve
+                    registration_type: 1, // 1 = No registration required
                     audio: 'both',
                     auto_recording: 'none',
-                    waiting_room: false,
-                    meeting_authentication: false, // Disable meeting authentication
-                    enforce_login: false,
-                    // ✅ Explicitly disable passcode
-                    password: '', // Empty password
+                    waiting_room: false, // ⬅️ Important: Disable waiting room
+                    meeting_authentication: false, // ⬅️ Disable authentication
+                    enforce_login: false, // ⬅️ Allow participants to join without login
+                    // Remove password field completely - let Zoom decide
+                    // password: '', // Empty password
                     use_pmi: false // Don't use Personal Meeting ID
                 },
             },
@@ -98,6 +98,8 @@ const createMeeting = async (req, res) => {
             }
         );
 
+        console.log("Meeting created with password:", meeting.data.password);
+
         // ✅ SAVE MEETING INFO TO APPOINTMENT
         const updatedAppointment = await Appointment.findByIdAndUpdate(
             appointmentId,
@@ -105,6 +107,7 @@ const createMeeting = async (req, res) => {
                 zoomMeetingId: meeting.data.id,
                 zoomJoinUrl: meeting.data.join_url,
                 zoomStartUrl: meeting.data.start_url,
+                zoomPassword: meeting.data.password,
             },
             { new: true } // Return updated document
         );
@@ -117,7 +120,7 @@ const createMeeting = async (req, res) => {
             meetingId: meeting.data.id,
             join_url: meeting.data.join_url,
             start_url: meeting.data.start_url,
-            password: meeting.data.password // Add this line
+            password: meeting.data.password, // Always return it
         });
     } catch (error) {
         console.error(error.response?.data || error.message);

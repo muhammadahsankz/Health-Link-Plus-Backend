@@ -44,6 +44,10 @@ const appointmentSchema = new mongoose.Schema({
         type: String,
         default: '',
     },
+    zoomPassword: {
+        type: String,
+        default: '',
+    },
     createdAt: {
         type: Date,
         default: Date.now,
