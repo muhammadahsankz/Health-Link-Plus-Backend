@@ -14,19 +14,19 @@ const generateSignature = async (req, res) => {
         const exp = iat + 60 * 60 * 2; // valid for 2 hours
         const header = { alg: 'HS256', typ: 'JWT' };
         const payload = {
-            sdkKey: process.env.ZOOM_CLIENT_ID,
+            sdkKey: process.env.ZOOM_MEETING_SDK_CLIENT_ID,
             mn: meetingNumber,
             role,
             iat,
             exp,
-            appKey: process.env.ZOOM_CLIENT_ID,
+            appKey: process.env.ZOOM_MEETING_SDK_CLIENT_ID,
             tokenExp: exp,
         };
 
         const base64Header = Buffer.from(JSON.stringify(header)).toString('base64url');
         const base64Payload = Buffer.from(JSON.stringify(payload)).toString('base64url');
         const signature = crypto
-            .createHmac('sha256', process.env.ZOOM_CLIENT_SECRET)
+            .createHmac('sha256', process.env.ZOOM_MEETING_SDK_CLIENT_SECRET)
             .update(`${base64Header}.${base64Payload}`)
             .digest('base64url');
 
