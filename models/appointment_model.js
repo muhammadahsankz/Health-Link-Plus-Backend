@@ -44,7 +44,7 @@ const appointmentSchema = new mongoose.Schema({
         type: String,
         default: '',
     },
-    zoomPassword: {
+    zoomMeetingPassword: {
         type: String,
         default: '',
     },

@@ -107,7 +107,7 @@ const createMeeting = async (req, res) => {
                 zoomMeetingId: meeting.data.id,
                 zoomJoinUrl: meeting.data.join_url,
                 zoomStartUrl: meeting.data.start_url,
-                zoomPassword: meeting.data.password,
+                zoomMeetingPassword: meeting.data.password,
             },
             { new: true } // Return updated document
         );
@@ -120,7 +120,7 @@ const createMeeting = async (req, res) => {
             meetingId: meeting.data.id,
             join_url: meeting.data.join_url,
             start_url: meeting.data.start_url,
-            password: meeting.data.password, // Always return it
+            zoomMeetingPassword: meeting.data.password, // Always return it
         });
     } catch (error) {
         console.error(error.response?.data || error.message);

@@ -184,7 +184,7 @@ exports.getMeetingDetails = async (req, res) => {
         }
 
         const appointment = await Appointment.findById(appointmentId)
-            .select("zoomMeetingId zoomJoinUrl status doctorId patientId");
+            .select("zoomMeetingId zoomJoinUrl status doctorId patientId zoomMeetingPassword");
 
         if (!appointment) {
             return res.status(404).json({
@@ -206,6 +206,7 @@ exports.getMeetingDetails = async (req, res) => {
                 meetingId: appointment.zoomMeetingId,
                 joinUrl: appointment.zoomJoinUrl,
                 status: appointment.status,
+                zoomMeetingPassword: appointment.zoomMeetingPassword
             },
         });
     } catch (error) {
