@@ -82,6 +82,12 @@ const createMeeting = async (req, res) => {
                     registration_type: 1,
                     audio: 'both',
                     auto_recording: 'none',
+                    waiting_room: false,
+                    meeting_authentication: false, // Disable meeting authentication
+                    enforce_login: false,
+                    // ✅ Explicitly disable passcode
+                    password: '', // Empty password
+                    use_pmi: false // Don't use Personal Meeting ID
                 },
             },
             {
@@ -111,6 +117,7 @@ const createMeeting = async (req, res) => {
             meetingId: meeting.data.id,
             join_url: meeting.data.join_url,
             start_url: meeting.data.start_url,
+            password: meeting.data.password // Add this line
         });
     } catch (error) {
         console.error(error.response?.data || error.message);
